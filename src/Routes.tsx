@@ -10,6 +10,7 @@ import Transactions from "./pages/Transactions";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFound from "./pages/Error/NotFound";
 import Users from "./pages/users";
+import Testing from "./pages/profile/Testing";
 
 const AppRoutes = () => {
   return (
@@ -21,6 +22,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/testing" element={<Testing />} />
 
         {/* Protected Routes */}
         {/* <Route
