@@ -1,23 +1,24 @@
+// src/pages/auth/Register.tsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../app/hooks";
 import { AppDispatch } from "../../app/store";
 import { Button, SocialSignIn } from "../../components/Button";
 import { InputField } from "../../components/Input";
 import { registerUser, socialRegister } from "../../features/auth/authSlice";
+import { setSuccess } from "../../features/system/systemSlice";
 import AuthLayout from "../../layouts/AuthLayout";
-
 
 const Signup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const authUser = useAppSelector((state) => state.auth);
-  const loading = authUser.loading;
+  const auth = useSelector((state: any) => state.auth);
+  const loading = auth.loading;
+  const system = useSelector((state: any) => state.system);
   const passwordValidator = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
   const [disabled, setDisabled] = useState(false);
-  const [custom, setCustom] = useState(false);
   const [allInputs, setAllInputs] = useState({
     email: "",
     password: "",
@@ -27,11 +28,13 @@ const Signup = () => {
   });
 
   useEffect(() => {
-    if (authUser.token.access) {
-      toast.success("Welcome onboard!");
-      navigate("/");
+    if (localStorage.getItem('operation_status')=='success') {
+      console.log(auth);
+      toast.success("ユーザーは正常にログインされました");
+      localStorage.setItem("operation_status", "none");
+      navigate("/login");
     }
-  }, [authUser.token]);
+  }, [auth]);
 
   const handleFormChanger = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAllInputs({ ...allInputs, [e.target.name]: e.target.value });
@@ -42,60 +45,47 @@ const Signup = () => {
     setDisabled(true);
     if (!allInputs.password.match(passwordValidator)) {
       toast.error(
-        "Password must be Alphanumeric and atleast 8 character long with upper and lower case"
+        "パスワードは英数字で、大文字と小文字を含む 8 文字以上である必要があります"
       );
     } else {
       dispatch(registerUser(allInputs));
     }
-
     setDisabled(false);
-  };
-
-
-
-  const toggleCustom = () => {
-    setCustom(true);
   };
 
   return (
     <AuthLayout>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
-          />
+          <div className="flex justify-center align-middle mt-20 mx-auto w-20">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="size-4"
+            >
+              <path
+                fillRule="evenodd"
+                d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0Zm-5-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM8 9c-1.825 0-3.422.977-4.295 2.437A5.49 5.49 0 0 0 8 13.5a5.49 5.49 0 0 0 4.294-2.063A4.997 4.997 0 0 0 8 9Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Create an account
+            アカウントを作成{" "}
           </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" onSubmit={handleFormSubmit}>
-            {!custom ? (
-              <>
-             
-
-              
-
-                <hr className="w-full h-px my-8 bg-text-gray-900 border dark:bg-neutral-400" />
-
-                {/* <button type="button" onClick={toggleCustom}>Login with Email</button> */}
-                <Button
-                  name="Sign up with Email"
-                  type="button"
-                  onClick={toggleCustom}
-                />
-              </>
-            ) : (
+            
               <>
                 <div>
                   <label
                     htmlFor="firstname"
-                    className="block text-sm font-medium leading-6 text-gray-900"
+                    className="block text-lg font-medium leading-6 text-gray-900"
                   >
-                    First Name
+                    名
                   </label>
                   <div className="mt-2">
                     <InputField
@@ -111,9 +101,9 @@ const Signup = () => {
                 <div>
                   <label
                     htmlFor="lastname"
-                    className="block text-sm font-medium leading-6 text-gray-900"
+                    className="block text-lg font-medium leading-6 text-gray-900"
                   >
-                    Last Name
+                    姓
                   </label>
                   <div className="mt-2">
                     <InputField
@@ -128,9 +118,9 @@ const Signup = () => {
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-medium leading-6 text-gray-900"
+                    className="block text-lg font-medium leading-6 text-gray-900"
                   >
-                    Phone Number
+                    電話番号
                   </label>
                   <div className="mt-2">
                     <InputField
@@ -145,9 +135,9 @@ const Signup = () => {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium leading-6 text-gray-900"
+                    className="block text-lg font-medium leading-6 text-gray-900"
                   >
-                    Email address
+                    メールアドレス
                   </label>
                   <div className="mt-2">
                     <InputField
@@ -164,9 +154,9 @@ const Signup = () => {
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor="password"
-                      className="block text-sm font-medium leading-6 text-gray-900"
+                      className="block text-lg font-medium leading-6 text-gray-900"
                     >
-                      Password
+                      パスワード
                     </label>
                   </div>
                   <div className="mt-2">
@@ -183,23 +173,22 @@ const Signup = () => {
                 <div>
                   <Button
                     loading={loading}
-                    name="Sign up"
-                    altText="Sign up...."
+                    name="サインアップ"
+                    altText="サインアップ..."
                     type="submit"
                     disabled={disabled}
                   />
                 </div>
               </>
-            )}
           </form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
-            Already a Member?{" "}
+            すでにメンバーですか?{" "}
             <a
               href="/login"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 underline"
             >
-              Log in here
+              ここからログイン
             </a>
           </p>
         </div>

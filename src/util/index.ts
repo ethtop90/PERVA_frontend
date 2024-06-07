@@ -2,6 +2,7 @@ import { toast } from "react-hot-toast";
 import { getStorageValue } from "./localStorage";
 
 export const getSimplifiedError = (error: object | any) => {
+  console.log('error');
   if (!error.response) {
     toast.error(
       "Something went wrong, check your internet and please try again"

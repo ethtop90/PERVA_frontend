@@ -17,7 +17,7 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <Toaster position="top-center" reverseOrder={true} />
+        <Toaster position="top-right" reverseOrder={true} />
       </PersistGate>
       <App />
     </Provider>

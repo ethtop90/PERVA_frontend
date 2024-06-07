@@ -1,3 +1,4 @@
+import { systemSelector } from './../features/system/systemSlice';
 import {
   configureStore,
   ThunkAction,
@@ -17,16 +18,18 @@ import {
 import storage from "redux-persist/lib/storage";
 import counterReducer from "../features/counter/counterSlice";
 import authReducer from "../features/auth/authSlice";
+import systemReucer from "../features/system/systemSlice";
 
 const rootReducer = combineReducers({
   counter: counterReducer, //to be removed once we have more than one reducer
   auth: authReducer,
+  system: systemReucer,
 });
 
 const persistConfig = {
   key: "root",
   storage: storage,
-  whitelist: ["auth"], //add any reducer you want to be persisted here
+  whitelist: ["auth", "system"], //add any reducer you want to be persisted here
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,18 +1,26 @@
+// src/features/auth/authSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getSimplifiedError } from "../../util";
-import { APIService } from "../../util/APIService";
+import { APIService, altAPIService } from "../../util/APIService";
+import { baseUrl } from "../../util/endpoints";
 import { url } from "../../util/endpoints";
+import axios from "axios";
+import { isAuthenticated } from "../../components/general/sidebar";
+import { config } from "process";
+
+console.log(APIService);
+
 export interface AuthState {
   loading: boolean;
   userData: any;
-  token: any;
+  access_token: any;
   verifiedStatus: boolean;
 }
 
 const initialState: AuthState = {
   loading: false,
   userData: {},
-  token: {},
+  access_token: undefined,
   verifiedStatus: false,
 };
 
@@ -31,8 +39,6 @@ export const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.userData = payload;
-        state.token = payload.tokens;
       })
       .addCase(registerUser.rejected, (state, { payload }) => {
         state.loading = false;
@@ -53,8 +59,9 @@ export const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.userData = payload.user;
-        state.token = payload.tokens;
+        console.log(payload);
+        state.userData = payload.userData;
+        state.access_token = payload.access_token;
       })
       .addCase(loginUser.rejected, (state, { payload }) => {
         state.loading = false;
@@ -75,7 +82,7 @@ export const authSlice = createSlice({
       })
       .addCase(logoutUser.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.token = {};
+        state.access_token = {};
         state.userData = {};
       })
       .addCase(logoutUser.rejected, (state, { payload }) => {
@@ -99,6 +106,8 @@ export const registerUser = createAsyncThunk(
   async (payload: any, { rejectWithValue }) => {
     try {
       const { data } = await APIService.post(`${url.register}`, payload);
+      if (data["status"] == "ok")
+        localStorage.setItem("operation_status", "success");
       return data;
     } catch (error: any) {
       return rejectWithValue(
@@ -113,6 +122,7 @@ export const socialRegister = createAsyncThunk(
   async (payload: any, { rejectWithValue }) => {
     try {
       const { data } = await APIService.post(`${url.socialRegister}`, payload);
+      localStorage.setItem("username", data.userData.username);
       return data;
     } catch (error: any) {
       return rejectWithValue(
@@ -127,6 +137,8 @@ export const loginUser = createAsyncThunk(
   async (payload: any, { rejectWithValue }) => {
     try {
       const { data } = await APIService.post(`${url.login}`, payload);
+      if (data["status"] == "ok")
+        localStorage.setItem("operation_status", "success");
       return data;
     } catch (error: any) {
       return rejectWithValue(
@@ -153,8 +165,17 @@ export const socialLogin = createAsyncThunk(
 export const logoutUser = createAsyncThunk(
   "logoutUser",
   async (payload: any, { rejectWithValue }) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${payload.access_token}`,
+      },
+      // Add any other configuration options here
+    };
     try {
-      const { data } = await APIService.post(`${url.logout}`, payload);
+      const { data } = await APIService.post(`${url.logout}`, payload, config);
+      if (data["status"] == "ok")
+        localStorage.setItem("operation_status", "success");
+
       return data;
     } catch (error: any) {
       return rejectWithValue(
