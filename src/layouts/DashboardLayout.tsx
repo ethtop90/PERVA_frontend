@@ -1,34 +1,51 @@
+// src/layouts/DashboardLayout.tsx
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import HeadNav from "../components/general/headnav";
 import Sidebar from "../components/general/sidebar";
+import { render } from "@headlessui/react/dist/utils/render";
+import Learning from "../components/PageComponents/Learning";
 interface dashboard {
   children?: any;
-
   current: number;
 }
-const DashboardLayout = ({ children, current }: dashboard) => {
+
+const DashboardLayout: React.FC<dashboard> = ({ children }: dashboard) => {
+  const navigate = useNavigate();
+  const [componentId, setComponentId] = useState(1);
+
+  const handleComponentSelect = (id: number) => {
+    setComponentId(id);
+  };
+
+  const renderComponent = () => {
+    switch (componentId) {
+      case 1:
+        return <Learning />;
+      // case 2:
+      //   return <ScenarioRegistration />;
+      // case 3:
+      //   return <LogManagement />;
+      // case 4:
+      //   return <LogLearning />;
+      // case 5:
+      //   return <LogChat />;
+      // case 6:
+      //   return <LogFeedback />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="w-full flex flex-col">
-      <div className="flex flex-col lg:hidden mt-6 px-4 justify-center h-screen">
-        <h1 className="font-bold text-customBlack text-base text-center mb-2 ">
-          Sorry, this page is not optimized for mobile devices.
-        </h1>
-        <p className="text-neutral-700 text-sm  ">
-          Please try viewing it on a larger screen, such as a laptop or desktop
-          computer, for a better experience.
-        </p>
-        <p className="text-neutral-700 text-sm  ">
-          Thank you for your understanding. 😊
-        </p>
-      </div>
+    <div className="flex flex-row w-full">
       <div className="w-full h-screen bg-[#f6f6f6] relative  md:flex hidden ">
-        <div className="w-3/12 max-w-[250px]  2xl:max-w-[320px] ">
-          <Sidebar current={current} />
+        <div className="">
+          <Sidebar handleComponentSelect={handleComponentSelect} />
         </div>
-
-        <div className="w-9/12 flex flex-col flex-grow relative h-full flow-hide  ">
-          <HeadNav />
-
-          <div className="w-full h-[95vh] flow-hide px-12">{children}</div>
+        <div className=" flex flex-col flex-grow h-full flow-hide bg-[#202020] pt-[12px] pr-[14px] pb-[16px]">
+          {/* <div className="w-full h-[95vh] flow-hide px-12">{children}</div> */}
+          <div className="bg-white w-full h-full rounded-r p-[32px]" >{renderComponent()}</div>
         </div>
       </div>
     </div>
