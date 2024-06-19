@@ -26,7 +26,7 @@ const Learning = () => {
   }, [currentWindow])
 
   return (
-    <div className="pl-5 text-xl font-bold ">
+    <div className="pl-5 text-xl font-bold pb-5">
       <h1 className="">学習させる</h1>
       <div className="flex flex-row mt-[15px] mb-[14px] space-x-[31px]">
         <div className="w-[233px]">
@@ -62,7 +62,7 @@ const Learning = () => {
           </button>
         </div>
       </div>
-      <div className="mr-[17px] border border-gray-400 ">
+      <div className="mr-[17px] border border-gray-400">
         {renderWindow(currentWindow)}
       </div>
     </div>

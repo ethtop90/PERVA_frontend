@@ -247,7 +247,7 @@ const FileUpload: React.FC = () => {
               {upload.status === "inProgress" && <UploadingIcon />}
             </div>
             <div className="flex flex-col w-[150px]">
-              <p className="font-bold text-[16px] w-full">{upload.fileName}</p>
+              <p className="font-bold text-[16px] w-full ">{upload.fileName}</p>
               <span className="text-gray-400">
                 ファイルサイズ: {upload.fileSize} KB
               </span>

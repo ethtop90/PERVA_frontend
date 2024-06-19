@@ -1,7 +1,9 @@
+// src/components/windows/LearningHandInput.tsx
 import { Content } from "antd/es/layout/layout";
 import { title } from "process";
 import React, { useState, ChangeEvent } from "react";
 import { Interface } from "readline";
+import { APIService } from "../../util/APIService";
 
 interface Item {
   title: string;
@@ -18,13 +20,27 @@ const LearningHandInput: React.FC = () => {
     setItem({ ...item, [name]: value });
   };
 
-  const handleStartLearning = () => {
-    // Handle the start learning action
-    console.log("Starting learning with items:");
+  const handleStartLearning = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await APIService.post(
+        "/learningData/handinput",
+        item,
+        config
+      );
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Error starting learning:", error);
+    }
   };
 
   return (
-    <div className="pt-[24px] h-[670px]">
+    <div className="max-h-full h-full flex flex-col">
       <div className="pl-[33px] pb-[15px] pr-[68px] pt-[5px] h-full overflow-auto">
         <div className="flex items-center  max-w-[1200px]">
           <div className="w-full">
@@ -48,7 +64,7 @@ const LearningHandInput: React.FC = () => {
                 placeholder="こちらに学習させたい内容を記述ください"
                 value={item.content}
                 onChange={(e) => handleInputChange(e)}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-5 text-sm "
+                className="mt-1 block w-full border border-gray-300 rounded-md p- text-sm "
                 rows={15}
               />
             </div>

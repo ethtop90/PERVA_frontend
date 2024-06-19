@@ -1,4 +1,6 @@
+// src/components/windows/LearningURL.tsx
 import React, { useState, ChangeEvent } from "react";
+import { APIService } from "../../util/APIService";
 
 const LearningURL: React.FC = () => {
   const [items, setItems] = useState<Item[]>([
@@ -24,16 +26,30 @@ const LearningURL: React.FC = () => {
     setItems(newItems);
   };
 
-  const handleStartLearning = () => {
-    // Handle the start learning action
-    console.log("Starting learning with items:", items);
+  const handleStartLearning = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await APIService.post(
+        "/learningData/urls",
+        items,
+        config
+      );
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Error starting learning:", error);
+    }
   };
 
   return (
-    <div className="pt-[24px] h-[670px]">
-      <div className="bg-[#D8D8D8] pl-[33px] pb-[15px] pr-[68px] pt-[5px] h-full overflow-auto">
+    <div className="pt-[24px] max-h-full h-full flex flex-col">
+      <div className="bg-[#D8D8D8] pl-[33px] pb-[15px] pr-[68px] pt-[5px] h-full overflow-y-auto">
         {items.map((item, index) => (
-          <>
+          <div className="h-full max-h-full" key={index}>
             <div key={index} className="flex items-center  max-w-[1200px]">
               <div className="w-full">
                 <div className="flex-1">
@@ -145,7 +161,7 @@ const LearningURL: React.FC = () => {
               </div>
             </div>
             <hr className="w-full mt-[5px] mb-[5px] bg-gray-400 h-[5px] rounded shadow-md max-w-[1200px]"></hr>
-          </>
+          </div>
         ))}
       </div>
       <div className="flex justify-center pt-[16px] pb-[16px]">
