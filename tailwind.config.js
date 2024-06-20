@@ -12,6 +12,7 @@ module.exports = {
         primaryred: "#B51717",
         lightred: "#F4DADA",
       },
+      
     },
   },
   plugins: [],

@@ -1,8 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { FaTimes, FaTrash } from "react-icons/fa";
-// import { ReactComponent as SuccessIcon } from "../../assets/icons/success.svg";
-// import { ReactComponent as FailedIcon } from "../../assets/icons/failed.svg";
-// import { ReactComponent as UploadingIcon } from "../../assets/icons/loading.svg";
 import "./style.css";
 
 const SuccessIcon = () => (
@@ -130,23 +127,38 @@ interface UploadStatus {
   fileSize: number; // Size in KB
   status: "inProgress" | "failure" | "success";
   progress: number; // Percentage
-  remainingTime: number; // Seconds\
+  remainingTime: number; // Seconds
 }
 
-const FileUpload: React.FC = () => {
-  const [uploads, setUploads] = useState<UploadStatus[]>([]);
+interface FileUploadProps {
+  onFileChange: (files: File[]) => void;
+  uploadStatuses: UploadStatus[];
+  setUploadStatuses: React.Dispatch<React.SetStateAction<UploadStatus[]>>;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({
+  onFileChange,
+  uploadStatuses,
+  setUploadStatuses,
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("In FileUpload, files are changed");
+
     if (event.target.files) {
-      const newUploads = Array.from(event.target.files).map((file) => ({
+      const newFiles = Array.from(event.target.files);
+      onFileChange(newFiles);
+
+      const newUploads = newFiles.map((file) => ({
         fileName: file.name,
         fileSize: Math.round(file.size / 1024), // Convert to KB
         status: "inProgress" as "inProgress",
         progress: 0,
         remainingTime: 0,
       }));
-      setUploads((prevUploads) => [...prevUploads, ...newUploads]);
+
+      setUploadStatuses((prevUploads) => [...prevUploads, ...newUploads]);
       uploadFiles(newUploads);
     }
   };
@@ -154,7 +166,7 @@ const FileUpload: React.FC = () => {
   const uploadFiles = (files: UploadStatus[]) => {
     files.forEach((file, index) => {
       const interval = setInterval(() => {
-        setUploads((prevUploads) => {
+        setUploadStatuses((prevUploads) => {
           const updatedUploads = [...prevUploads];
           const fileIndex = updatedUploads.findIndex(
             (f) => f.fileName === file.fileName
@@ -181,13 +193,13 @@ const FileUpload: React.FC = () => {
   };
 
   const closeUpload = (index: number) => {
-    setUploads((uploads) => uploads.filter((_, i) => i !== index));
+    setUploadStatuses((uploads) => uploads.filter((_, i) => i !== index));
   };
 
   return (
-    <div className="pt-[40px] px-auto ">
+    <div className="pt-[40px] px-auto">
       <h1 className="pb-[30px]">ファイルアップロード</h1>
-      <div className=" border-4 border-dashed py-[40px]  border-[#7CA5C2] rounded-lg bg-[#EAF4FE] w-[500px] flex flex-col justify-center mx-auto">
+      <div className="border-4 border-dashed py-[40px] border-[#7CA5C2] rounded-lg bg-[#EAF4FE] w-[500px] flex flex-col justify-center mx-auto">
         <div className="flex justify-center">
           <svg
             width="128px"
@@ -217,7 +229,7 @@ const FileUpload: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className=" border-none rounded-lg w-[500px]">
+      <div className="border-none rounded-lg w-[500px]">
         <input
           type="file"
           ref={fileInputRef}
@@ -225,14 +237,7 @@ const FileUpload: React.FC = () => {
           multiple
           onChange={handleFileChange}
         />
-        {/* <button
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          ファイルを選択
-        </button> */}
-        {/* <div className="space-y-4 mt-4"> */}
-        {uploads.map((upload, index) => (
+        {uploadStatuses.map((upload, index) => (
           <div
             key={index}
             className="flex items-center space-x-4 p-4 border rounded-md bg-white my-[20px] text-[12px]"
@@ -247,7 +252,7 @@ const FileUpload: React.FC = () => {
               {upload.status === "inProgress" && <UploadingIcon />}
             </div>
             <div className="flex flex-col w-[150px]">
-              <p className="font-bold text-[16px] w-full ">{upload.fileName}</p>
+              <p className="font-bold text-[16px] w-full">{upload.fileName}</p>
               <span className="text-gray-400">
                 ファイルサイズ: {upload.fileSize} KB
               </span>
@@ -271,13 +276,15 @@ const FileUpload: React.FC = () => {
             </div>
             <div className="border-2 w-[30px] h-[30px] rounded-full px-auto flex justify-center hover:bg-red-500">
               <button onClick={() => closeUpload(index)} className="">
-                {upload.status === "inProgress" ? (<FaTimes color="#CBD5E0" />) : (<FaTrash color="#CBD5E0" />)}
-                
+                {upload.status === "inProgress" ? (
+                  <FaTimes color="#CBD5E0" />
+                ) : (
+                  <FaTrash color="#CBD5E0" />
+                )}
               </button>
             </div>
           </div>
         ))}
-        {/* </div> */}
       </div>
     </div>
   );

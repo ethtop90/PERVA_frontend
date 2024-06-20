@@ -120,6 +120,8 @@ const Sidebar = ({
 
   useEffect(() => {
     if (isAuthenticated) {
+      if (auth?.access_token)
+        localStorage.setItem("access_token", auth?.access_token);
     } else {
     }
   }, [isAuthenticated]);
