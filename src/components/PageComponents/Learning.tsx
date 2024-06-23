@@ -63,39 +63,37 @@ const Learning = () => {
   };
 
   return (
-    <div className="pl-5 text-xl font-bold h-full max-h-full flex flex-col">
+    <div className="flex flex-col h-full max-h-full pl-5 text-xl font-bold">
       <h1 className="">学習させる</h1>
-      <div className="flex flex-row mt-[15px] mb-[14px] space-x-[31px]">
-        <div className="w-[233px]">
+      <div className="flex flex-row mt-[15px] mb-[14px] space-x-[31px] flex justify-start">
+        <div className="max-w-[233px] w-52">
           <button
             className={`flex w-full justify-center rounded-md bg-[#D9D9D9] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#B0B0B0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 text-black`}
             name="URL"
             key="URL"
             onClick={() => setCurrentWindow("URL")}
           >
-            URL
+            <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">URL</span>
           </button>
         </div>
-        <div className="w-[233px]">
+        <div className="max-w-[233px] w-52">
           <button
             className={`flex w-full justify-center rounded-md bg-[#D9D9D9] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#B0B0B0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 text-black`}
-            width={20}
             name="ファイルアップロード"
             key="FileUpload"
             onClick={() => setCurrentWindow("FileUpload")}
           >
-            ファイルアップロード
+            <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">ファイルアップロード</span>
           </button>
         </div>
-        <div className="w-[233px]">
+        <div className="max-w-[233px] w-52">
           <button
             className={`flex w-full justify-center rounded-md bg-[#D9D9D9] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#B0B0B0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 text-black`}
-            width={20}
             name="手入力"
             key="HandInput"
             onClick={() => setCurrentWindow("HandInput")}
           >
-            手入力
+            <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">手入力</span>
           </button>
         </div>
       </div>

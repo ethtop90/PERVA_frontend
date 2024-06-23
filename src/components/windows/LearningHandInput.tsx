@@ -45,23 +45,23 @@ const LearningHandInput: React.FC<LearningHandInputProps> = ({
   };
 
   return (
-    <div className="max-h-full h-full flex flex-col">
+    <div className="flex flex-col h-full max-h-full">
       <div className="pl-[33px] pb-[15px] pr-[68px] pt-[5px] h-full overflow-auto">
         <div className="flex items-center max-w-[1200px]">
           <div className="w-full">
             <div className="flex-1 my-2">
-              <label className="block text-md text-gray-700">タイトル</label>
+              <label className="block text-gray-700 text-md">タイトル</label>
               <input
                 type="text"
                 name="title"
                 placeholder="タイトルをご記入ください"
                 value={item.title}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm"
+                className="block w-full p-2 mt-1 text-sm border border-gray-300 rounded-md"
               />
             </div>
             <div className="flex-1 my-2">
-              <label className="block text-md font-bold text-gray-700">
+              <label className="block font-bold text-gray-700 text-md">
                 内容
               </label>
               <textarea
@@ -69,7 +69,7 @@ const LearningHandInput: React.FC<LearningHandInputProps> = ({
                 placeholder="こちらに学習させたい内容を記述ください"
                 value={item.content}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-5 text-sm"
+                className="block w-full p-5 mt-1 text-sm border border-gray-300 rounded-md"
                 rows={15}
               />
             </div>

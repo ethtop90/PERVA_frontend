@@ -136,7 +136,7 @@ const Sidebar = ({
   }, []);
 
   return (
-    <div className="w-full top-0 left-0 bottom-0 h-screen flex flex-col max-w-[250px] 2xl:max-w-[320px]   bg-[#202020] flow-hide  ">
+    <div className="w-full top-0 left-0 bottom-0 h-screen flex flex-col w-[230px]   bg-[#202020] flow-hide  ">
       <div className="relative flex flex-col items-center w-full h-screen">
         <div className="flex justify-center mt-12">
           {/* <h1 className="text-white">YOUR LOGO HERE</h1> */}

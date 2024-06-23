@@ -5,6 +5,7 @@ import HeadNav from "../components/general/headnav";
 import Sidebar from "../components/general/sidebar";
 import { render } from "@headlessui/react/dist/utils/render";
 import Learning from "../components/PageComponents/Learning";
+import LearningLog from "../components/PageComponents/LearningLog";
 interface dashboard {
   children?: any;
   current: number;
@@ -26,8 +27,8 @@ const DashboardLayout: React.FC<dashboard> = ({ children }: dashboard) => {
       //   return <ScenarioRegistration />;
       // case 3:
       //   return <LogManagement />;
-      // case 4:
-      //   return <LogLearning />;
+      case 4:
+        return <LearningLog />;
       // case 5:
       //   return <LogChat />;
       // case 6:
@@ -45,7 +46,7 @@ const DashboardLayout: React.FC<dashboard> = ({ children }: dashboard) => {
         </div>
         <div className=" flex flex-col flex-grow h-full flow-hide bg-[#202020] pt-[12px] pr-[14px] pb-[16px]">
           {/* <div className="w-full h-[95vh] flow-hide px-12">{children}</div> */}
-          <div className="bg-white w-full h-full rounded-r p-[32px]" >{renderComponent()}</div>
+          <div className="bg-white w-full h-full max-h-full rounded-r p-[32px]" >{renderComponent()}</div>
         </div>
       </div>
     </div>
