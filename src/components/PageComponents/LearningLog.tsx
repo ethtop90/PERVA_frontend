@@ -4,8 +4,7 @@ import React, { useState, useEffect } from "react";
 import { APIService } from "../../util/APIService";
 import "../../assets/css/style.css";
 import toast from "react-hot-toast";
-import axios from "axios";
-import { url } from "../../util/endpoints";
+import Modal from "../modal/EditModal"; // Assume you create this modal component
 
 interface LearningLogData {
   id: string;
@@ -19,13 +18,22 @@ const LearningLog: React.FC = () => {
   const [data, setData] = useState<LearningLogData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [currentLog, setCurrentLog] = useState<LearningLogData | null>(null);
 
-  useEffect(() => {
-    // Fetch data from the database or API
-    const fetchData = async () => {
+  // State variables for different log types
+  const [urlLogData, setUrlLogData] = useState({
+    URL: "",
+    title: "",
+    remarks: "",
+  });
+  const [fileLogData, setFileLogData] = useState<File | null>(null);
+  const [textLogData, setTextLogData] = useState({ title: "", content: "" });
+
+
+  const fetchData = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        console.log(token);
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -35,7 +43,6 @@ const LearningLog: React.FC = () => {
           "/learningLogs/",
           config
         );
-
         setData(response.data);
         toast.success("操作は正常に続行されました");
         setLoading(false);
@@ -43,7 +50,10 @@ const LearningLog: React.FC = () => {
         toast.error("操作に失敗しました。");
         setLoading(false);
       }
-    };
+  };
+  
+  useEffect(() => {
+    
 
     fetchData();
   }, []);
@@ -55,34 +65,107 @@ const LearningLog: React.FC = () => {
     return str.slice(0, num) + "...";
   };
 
-  // Sort data by learningDate
   const sortedData = data.sort(
     (a, b) =>
       new Date(b.learningDate).getTime() - new Date(a.learningDate).getTime()
   );
 
-  const handleEdit = async (id: string) => {
-    const newTitle = prompt("新しいタイトルを入力してください");
-    if (newTitle) {
-      try {
-        const token = localStorage.getItem("access_token");
+  const openEditModal = (log: LearningLogData) => {
+    setCurrentLog(log);
+    if (log.type === "URL形式") {
+      setUrlLogData({
+        URL: "",
+        title: log.title,
+        remarks: log.note || "",
+      });
+    } else if (log.type === "ファイル形式") {
+      setFileLogData(null);
+    } else if (log.type === "手入力形式") {
+      setTextLogData({ title: log.title, content: log.note || "" });
+    }
+    setIsModalOpen(true);
+  };
 
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        };
-        await APIService.put(`/learningLogs/${id}`, { title: newTitle });
-        setData((prevData) =>
-          prevData.map((item) =>
-            item.id === id ? { ...item, title: newTitle } : item
-          )
+  const handleUrlChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setUrlLogData({
+      ...urlLogData,
+      [name]: value,
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFileLogData(e.target.files[0]);
+    }
+  };
+
+  const handleTextChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setTextLogData({
+      ...textLogData,
+      [name]: value,
+    });
+  };
+
+  const handleModalSave = async () => {
+    if (!currentLog) return;
+    try {
+      const token = localStorage.getItem("access_token");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      let response;
+      if (currentLog.type === "URL形式") {
+        response = await APIService.post(
+          `/learningLogs/${currentLog.id}`,
+          urlLogData,
+          config
         );
-        toast.success("操作は正常に続行されました");
-      } catch (err) {
-        toast.error("編集に失敗しました");
+      } else if (currentLog.type === "ファイル形式") {
+        console.log("ファイル形式");
+        const formData = new FormData();
+        if (fileLogData) {
+          formData.append("files", fileLogData);
+          console.log(fileLogData);
+        }
+        response = await APIService.post(
+          `/learningLogs/${currentLog.id}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else if (currentLog.type === "手入力形式") {
+        response = await APIService.post(
+          `/learningLogs/${currentLog.id}`,
+          textLogData,
+          config
+        );
       }
+
+      // setData((prevData) =>
+      //   prevData.map((item) =>
+      //     item.id === currentLog.id
+      //       ? { ...item, ...urlLogData, ...textLogData }
+      //       : item
+      //   )
+      // );
+      fetchData();
+      toast.success("操作は正常に続行されました");
+      setIsModalOpen(false);
+    } catch (err) {
+      toast.error("編集に失敗しました");
     }
   };
 
@@ -90,11 +173,9 @@ const LearningLog: React.FC = () => {
     if (window.confirm("この項目を削除してもよろしいですか？")) {
       try {
         const token = localStorage.getItem("access_token");
-
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
         };
         await APIService.delete(`/learningLogs/${id}`, config);
@@ -105,10 +186,6 @@ const LearningLog: React.FC = () => {
       }
     }
   };
-
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
 
   return (
     <div className="flex flex-col h-full max-h-full p-4">
@@ -151,10 +228,12 @@ const LearningLog: React.FC = () => {
                   className="max-w-[300px] p-2 align-top border-t border-b"
                   title={log.note}
                 >
-                  <p className="w-full " style={{ whiteSpace: "normal", wordWrap: "break-word"}}>
+                  <p
+                    className="w-full "
+                    style={{ whiteSpace: "normal", wordWrap: "break-word" }}
+                  >
                     {log.type === "URL形式" || log.type === "手入力形式"
-                      ? // ? truncateString(log.note || "", 30)
-                        log.note
+                      ? log.note
                       : ""}
                   </p>
                 </td>
@@ -168,7 +247,7 @@ const LearningLog: React.FC = () => {
                   <div className="flex justify-start align-top">
                     <button
                       className="w-6 h-6 mr-1 text-xs text-white bg-gray-600 rounded-full text-[10px]"
-                      onClick={() => handleEdit(log.id)}
+                      onClick={() => openEditModal(log)}
                     >
                       編集
                     </button>
@@ -185,6 +264,85 @@ const LearningLog: React.FC = () => {
           </tbody>
         </table>
       </div>
+      {isModalOpen && currentLog && (
+        <Modal
+          title="学習ログ編集"
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleModalSave}
+        >
+          <div className="p-4">
+            {currentLog.type === "URL形式" && (
+              <>
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  URL
+                </label>
+                <input
+                  type="text"
+                  name="URL"
+                  value={urlLogData.url}
+                  onChange={handleUrlChange}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  タイトル
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={urlLogData.title}
+                  onChange={handleUrlChange}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  備考
+                </label>
+                <textarea
+                  name="remarks"
+                  value={urlLogData.remarks}
+                  onChange={handleUrlChange}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+              </>
+            )}
+            {currentLog.type === "ファイル形式" && (
+              <>
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  ファイルを選択
+                </label>
+                <input
+                  type="file"
+                  name="file"
+                  onChange={handleFileChange}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+              </>
+            )}
+            {currentLog.type === "手入力形式" && (
+              <>
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  タイトル
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={textLogData.title}
+                  onChange={handleTextChange}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  内容
+                </label>
+                <textarea
+                  name="content"
+                  value={textLogData.content}
+                  onChange={handleTextChange}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+              </>
+            )}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

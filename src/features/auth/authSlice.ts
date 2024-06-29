@@ -173,9 +173,10 @@ export const logoutUser = createAsyncThunk(
     };
     try {
       const { data } = await APIService.post(`${url.logout}`, payload, config);
-      if (data["status"] == "ok")
+      if (data["status"] == "ok") {
         localStorage.setItem("operation_status", "success");
-
+        localStorage.removeItem("access_token");
+      }
       return data;
     } catch (error: any) {
       return rejectWithValue(
